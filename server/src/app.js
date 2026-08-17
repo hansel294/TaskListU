@@ -37,6 +37,7 @@ sequelize
       console.log(`Servidor corriendo en http://localhost:${PORT}`);
     });
   })
-  .catch((error) => {
-    console.error('No se pudo conectar a MySQL:', error.message);
+  .catch((error) => { 
+    console.error('No se pudo conectar a MySQL. Detalle completo:'); 
+    console.error(error); 
   });
