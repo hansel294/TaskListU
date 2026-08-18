@@ -1,17 +1,27 @@
 const Recordatorio = require('../models/Recordatorio');
 const Tarea = require('../models/Tarea');
 
+// Railway ejecuta el servidor en UTC, pero los usuarios están en Colombia (UTC-5).
+// Si comparáramos con new Date() directo, "hoy" del servidor podría ya ser mañana
+// para el usuario (o viceversa), rechazando fechas/horas válidas. Por eso calculamos
+// la fecha y hora "actuales" ya ajustadas a la zona horaria de Colombia.
+function obtenerFechaHoraColombia() {
+  const OFFSET_COLOMBIA_HORAS = 5; // Colombia es UTC-5 todo el año (no tiene horario de verano)
+  const ahoraColombia = new Date(Date.now() - OFFSET_COLOMBIA_HORAS * 60 * 60 * 1000);
+  const hoy = ahoraColombia.toISOString().split('T')[0];
+  const horaActual = ahoraColombia.toISOString().slice(11, 16);
+  return { hoy, horaActual };
+}
+
 function fechaEsValida(fecha) {
-  const hoy = new Date().toISOString().split('T')[0];
+  const { hoy } = obtenerFechaHoraColombia();
   return fecha >= hoy;
 }
 
 // Si el recordatorio es para hoy, la hora no puede ya haber pasado.
 function horaEsValida(fecha, hora) {
-  const ahora = new Date();
-  const hoy = ahora.toISOString().split('T')[0];
+  const { hoy, horaActual } = obtenerFechaHoraColombia();
   if (fecha !== hoy) return true;
-  const horaActual = `${String(ahora.getHours()).padStart(2, '0')}:${String(ahora.getMinutes()).padStart(2, '0')}`;
   return hora >= horaActual;
 }
 

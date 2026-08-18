@@ -1,9 +1,16 @@
 const Tarea = require('../models/Tarea');
 
+// Railway ejecuta el servidor en UTC, pero los usuarios están en Colombia (UTC-5).
+// Sin este ajuste, "hoy" del servidor puede no coincidir con "hoy" del usuario.
+function obtenerFechaHoyColombia() {
+  const OFFSET_COLOMBIA_HORAS = 5;
+  return new Date(Date.now() - OFFSET_COLOMBIA_HORAS * 60 * 60 * 1000).toISOString().split('T')[0];
+}
+
 // La fecha límite no puede ser anterior al día de hoy.
 function fechaEsValida(fecha) {
   if (!fecha) return true; // la fecha es opcional
-  const hoy = new Date().toISOString().split('T')[0];
+  const hoy = obtenerFechaHoyColombia();
   return fecha >= hoy;
 }
 

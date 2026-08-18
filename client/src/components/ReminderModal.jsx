@@ -44,8 +44,13 @@ export default function ReminderModal({ tareas, recordatorio, onGuardar, onCerra
     }
 
     setGuardando(true);
-    await onGuardar(esEdicion ? { fecha, hora, mensaje } : { fecha, hora, mensaje, tarea_id: tareaId });
-    setGuardando(false);
+    try {
+      await onGuardar(esEdicion ? { fecha, hora, mensaje } : { fecha, hora, mensaje, tarea_id: tareaId });
+    } catch (err) {
+      setError(err.response?.data?.mensaje || 'No se pudo guardar el recordatorio. Intenta de nuevo.');
+    } finally {
+      setGuardando(false);
+    }
   }
 
   return (
