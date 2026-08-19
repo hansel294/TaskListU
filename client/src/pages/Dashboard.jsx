@@ -114,14 +114,16 @@ export default function Dashboard() {
     return null;
   }
 
-  // Prioridad visual: vencidas primero, luego las próximas a vencer, luego el resto.
+  // Prioridad visual: 0 vencidas, 1 próximas a vencer, 2 activas normales, 3 completadas (siempre al final).
   // (sort de JS es estable, así que dentro de cada grupo se respeta el orden original)
-  const rangoUrgencia = { vencida: 0, pronto: 1 };
-  const tareasOrdenadas = [...tareas].sort((a, b) => {
-    const ra = rangoUrgencia[estadoUrgencia(a)] ?? 2;
-    const rb = rangoUrgencia[estadoUrgencia(b)] ?? 2;
-    return ra - rb;
-  });
+  function rangoPrioridad(tarea) {
+    if (tarea.estado === 'completada') return 3;
+    const urgencia = estadoUrgencia(tarea);
+    if (urgencia === 'vencida') return 0;
+    if (urgencia === 'pronto') return 1;
+    return 2;
+  }
+  const tareasOrdenadas = [...tareas].sort((a, b) => rangoPrioridad(a) - rangoPrioridad(b));
 
   // Mismo día -> ordenados por hora ascendente (8:00 antes que 9:00)
   function ordenarPorFechaYHora(lista) {
@@ -230,6 +232,8 @@ export default function Dashboard() {
                       className="task-tile-select"
                       value={t.estado}
                       onChange={(e) => cambiarEstado(t.id, e.target.value)}
+                      disabled={t.estado === 'completada'}
+                      title={t.estado === 'completada' ? 'Una tarea completada no puede cambiar de estado' : undefined}
                     >
                       <option value="pendiente">Pendiente</option>
                       <option value="en_proceso">En proceso</option>
