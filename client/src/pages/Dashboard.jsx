@@ -103,14 +103,14 @@ export default function Dashboard() {
 
   const hoy = new Date();
   const hoyISO = new Date(hoy.getTime() - hoy.getTimezoneOffset() * 60000).toISOString().split('T')[0];
-  const en2dias = new Date(hoy.getTime() + 2 * 86400000 - hoy.getTimezoneOffset() * 60000)
+  const en1dia = new Date(hoy.getTime() + 1 * 86400000 - hoy.getTimezoneOffset() * 60000)
     .toISOString()
     .split('T')[0];
 
   function estadoUrgencia(tarea) {
     if (tarea.estado === 'completada' || !tarea.fecha) return null;
     if (tarea.fecha < hoyISO) return 'vencida';
-    if (tarea.fecha <= en2dias) return 'pronto';
+    if (tarea.fecha <= en1dia) return 'pronto';
     return null;
   }
 
@@ -224,8 +224,8 @@ export default function Dashboard() {
                     <span className={`task-badge ${t.estado}`}>{etiquetaEstado[t.estado]}</span>
                   </div>
 
-                  {urgencia === 'vencida' && <span className="flag-badge vencida">Vencida</span>}
-                  {urgencia === 'pronto' && <span className="flag-badge pronto">Vence pronto</span>}
+                  {urgencia === 'vencida' && <span className="flag-badge vencida">⚠ Vencida</span>}
+                  {urgencia === 'pronto' && <span className="flag-badge pronto">⏳ Vence pronto</span>}
 
                   <div className="task-tile-actions">
                     <select
@@ -250,14 +250,16 @@ export default function Dashboard() {
                         👁
                       </button>
                     )}
-                    <button
-                      className="tile-icon-btn edit"
-                      onClick={() => setTareaEditando(t)}
-                      title="Editar tarea"
-                      aria-label="Editar tarea"
-                    >
-                      ✎
-                    </button>
+                    {t.estado !== 'completada' && (
+                      <button
+                        className="tile-icon-btn edit"
+                        onClick={() => setTareaEditando(t)}
+                        title="Editar tarea"
+                        aria-label="Editar tarea"
+                      >
+                        ✎
+                      </button>
+                    )}
                     <button
                       className="tile-icon-btn delete"
                       onClick={() => pedirEliminar(t)}

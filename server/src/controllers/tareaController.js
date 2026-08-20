@@ -55,6 +55,10 @@ async function editar(req, res) {
     const tarea = await Tarea.findOne({ where: { id, usuario_id: req.usuarioId } });
     if (!tarea) return res.status(404).json({ mensaje: 'Tarea no encontrada' });
 
+    if (tarea.estado === 'completada') {
+      return res.status(400).json({ mensaje: 'Una tarea completada no puede editarse' });
+    }
+
     const { titulo, descripcion, fecha } = req.body;
     if (!fechaEsValida(fecha)) {
       return res.status(400).json({ mensaje: 'La fecha límite no puede ser anterior a hoy' });

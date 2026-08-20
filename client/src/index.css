@@ -1185,22 +1185,29 @@ input, select {
 
 /* --- Banderas de urgencia en tareas --- */
 .flag-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   font-size: 10.5px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.02em;
-  padding: 2px 8px;
+  padding: 2px 9px;
   border-radius: 999px;
+  border: 1.5px solid transparent;
+  width: fit-content;
 }
 
 .flag-badge.vencida {
   background: #fdeeee;
   color: var(--danger);
+  border-color: var(--danger);
 }
 
 .flag-badge.pronto {
   background: #fbf1de;
   color: var(--en-proceso);
+  border-color: var(--en-proceso);
 }
 
 .task-card.urgencia-vencida {
@@ -1556,15 +1563,10 @@ input, select {
 .task-tile.en_proceso { border-left-color: var(--en-proceso); }
 .task-tile.completada { border-left-color: var(--completada); }
 
-.task-tile.urgencia-vencida {
-  border-left-color: var(--danger);
-  background: linear-gradient(90deg, #fef6f6 0%, var(--surface) 50px);
-}
-
-.task-tile.urgencia-pronto {
-  border-left-color: var(--en-proceso);
-  background: linear-gradient(90deg, #fefaf1 0%, var(--surface) 50px);
-}
+/* Nota: la urgencia (vencida/pronto) ya NO cambia el borde ni el fondo de toda la
+   tarjeta — el indicador vive únicamente en el flag-badge, para no sobrecargar
+   visualmente la tarjeta completa. El borde izquierdo sigue reflejando el estado
+   (pendiente/en_proceso/completada) normalmente. */
 
 .task-tile.completada .task-tile-title {
   color: var(--muted);
