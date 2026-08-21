@@ -1,3 +1,4 @@
+const { Op } = require('sequelize');
 const Recordatorio = require('../models/Recordatorio');
 const Tarea = require('../models/Tarea');
 
@@ -25,11 +26,17 @@ function horaEsValida(fecha, hora) {
   return hora >= horaActual;
 }
 
-// GET /api/recordatorios -> de todas las tareas del usuario logueado
+// GET /api/recordatorios -> de todas las tareas del usuario logueado,
+// EXCEPTO los de tareas ya completadas (esa tarea quedó "cerrada", así que
+// su recordatorio ya no tiene sentido mostrarlo ni en la campanita ni en la tarjeta).
 async function listar(req, res) {
   try {
     const recordatorios = await Recordatorio.findAll({
-      include: { model: Tarea, where: { usuario_id: req.usuarioId }, attributes: ['titulo'] },
+      include: {
+        model: Tarea,
+        where: { usuario_id: req.usuarioId, estado: { [Op.ne]: 'completada' } },
+        attributes: ['titulo'],
+      },
     });
     res.json(recordatorios);
   } catch (error) {
@@ -54,6 +61,9 @@ async function crear(req, res) {
 
     const tarea = await Tarea.findOne({ where: { id: tarea_id, usuario_id: req.usuarioId } });
     if (!tarea) return res.status(404).json({ mensaje: 'La tarea asociada no existe' });
+    if (tarea.estado === 'completada') {
+      return res.status(400).json({ mensaje: 'No se pueden crear recordatorios para una tarea ya completada' });
+    }
 
     const recordatorio = await Recordatorio.create({ fecha, hora, mensaje, tarea_id });
     res.status(201).json(recordatorio);

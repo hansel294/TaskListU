@@ -3,7 +3,10 @@ import { useState } from 'react';
 export default function ReminderModal({ tareas, recordatorio, onGuardar, onCerrar }) {
   const esEdicion = !!recordatorio;
 
-  const [tareaId, setTareaId] = useState(recordatorio?.tarea_id || tareas?.[0]?.id || '');
+  // Una tarea completada no debe poder recibir recordatorios nuevos.
+  const tareasDisponibles = (tareas || []).filter((t) => t.estado !== 'completada');
+
+  const [tareaId, setTareaId] = useState(recordatorio?.tarea_id || tareasDisponibles[0]?.id || '');
   const [fecha, setFecha] = useState(recordatorio?.fecha || '');
   const [hora, setHora] = useState(recordatorio?.hora?.slice(0, 5) || '');
   const [mensaje, setMensaje] = useState(recordatorio?.mensaje || '');
@@ -65,8 +68,10 @@ export default function ReminderModal({ tareas, recordatorio, onGuardar, onCerra
             <div className="field">
               <label>Tarea</label>
               <select value={tareaId} onChange={(e) => setTareaId(e.target.value)} required>
-                {tareas.length === 0 && <option value="">No tienes tareas todavía</option>}
-                {tareas.map((t) => (
+                {tareasDisponibles.length === 0 && (
+                  <option value="">No tienes tareas pendientes disponibles</option>
+                )}
+                {tareasDisponibles.map((t) => (
                   <option key={t.id} value={t.id}>{t.titulo}</option>
                 ))}
               </select>
@@ -104,7 +109,7 @@ export default function ReminderModal({ tareas, recordatorio, onGuardar, onCerra
 
           <div className="modal-actions">
             <button type="button" className="btn-ghost" onClick={onCerrar}>Cancelar</button>
-            <button type="submit" className="btn-primary" disabled={guardando || (!esEdicion && tareas.length === 0)}>
+            <button type="submit" className="btn-primary" disabled={guardando || (!esEdicion && tareasDisponibles.length === 0)}>
               {guardando ? 'Guardando...' : esEdicion ? 'Guardar cambios' : 'Crear recordatorio'}
             </button>
           </div>
