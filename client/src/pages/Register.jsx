@@ -25,10 +25,22 @@ function validarNombre(valor) {
   return '';
 }
 
+// Estructura general usuario@dominio.extension — no limita a .com, acepta .co, .org,
+// .net, .edu.co, etc. Rechaza correos incompletos, con espacios o con doble @.
+const CORREO_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+function validarCorreo(valor) {
+  const limpio = valor.trim();
+  if (!limpio) return 'El correo no puede estar vacío';
+  if (!CORREO_REGEX.test(limpio)) return 'Ingresa un correo con un formato válido (ej. usuario@dominio.com)';
+  return '';
+}
+
 export default function Register() {
   const [nombre, setNombre] = useState('');
   const [nombreError, setNombreError] = useState('');
   const [correo, setCorreo] = useState('');
+  const [correoError, setCorreoError] = useState('');
   const [contrasena, setContrasena] = useState('');
   const [confirmar, setConfirmar] = useState('');
   const [error, setError] = useState('');
@@ -54,6 +66,11 @@ export default function Register() {
     const errorNombre = validarNombre(nombre);
     if (errorNombre) {
       setError(errorNombre);
+      return;
+    }
+    const errorCorreo = validarCorreo(correo);
+    if (errorCorreo) {
+      setError(errorCorreo);
       return;
     }
     if (!contrasenaValida) {
@@ -121,9 +138,15 @@ export default function Register() {
               <input
                 type="email"
                 value={correo}
-                onChange={(e) => setCorreo(e.target.value)}
+                onChange={(e) => {
+                  setCorreo(e.target.value);
+                  if (correoError) setCorreoError('');
+                }}
+                onBlur={() => setCorreoError(validarCorreo(correo))}
+                placeholder="usuario@dominio.com"
                 required
               />
+              {correoError && <div className="field-error">{correoError}</div>}
             </div>
 
             <div className="field">

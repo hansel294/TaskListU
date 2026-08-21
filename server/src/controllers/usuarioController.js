@@ -39,6 +39,18 @@ function validarNombre(nombre) {
   return { esValido: true, limpio };
 }
 
+// Estructura general usuario@dominio.extension — sin exigir un dominio en particular
+// (acepta .com, .co, .org, .net, .edu.co, etc.), pero rechaza formatos incompletos
+// o malformados: sin @, sin punto en el dominio, espacios, o doble @.
+const CORREO_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+function validarCorreo(correo) {
+  if (typeof correo !== 'string' || !CORREO_REGEX.test(correo.trim())) {
+    return { esValido: false, mensaje: 'Ingresa un correo con un formato válido (ej. usuario@dominio.com)' };
+  }
+  return { esValido: true };
+}
+
 // POST /api/usuarios/registro
 async function registrar(req, res) {
   try {
@@ -51,6 +63,11 @@ async function registrar(req, res) {
     const nombreValidado = validarNombre(nombre);
     if (!nombreValidado.esValido) {
       return res.status(400).json({ mensaje: nombreValidado.mensaje });
+    }
+
+    const correoValidado = validarCorreo(correo);
+    if (!correoValidado.esValido) {
+      return res.status(400).json({ mensaje: correoValidado.mensaje });
     }
 
     const { esValida, faltantes } = validarContrasena(contrasena);
